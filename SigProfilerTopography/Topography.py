@@ -1258,6 +1258,9 @@ def runAnalyses(genome, # [String] The reference genome used for the topography 
                 replication_time_signal_file = None, # [String] The path to the replication time signal file.
                 replication_time_valley_file = None, # [String] The path to the replication time valley file.
                 replication_time_peak_file = None, # [String] The path to the replication time peak file.
+                region_analysis = False,
+                region_type = None,
+                region_file_path = None,
                 samples_of_interest = None, # [list of Strings] Conduct all topography analyses for these samples of interest only.
                 discreet_mode = True, # [Boolean] Each mutation contributes to the topography analyses either with 1 or 0 when True; otherwise, each mutation contributes with its probability when False.
                 average_probability = 0.9, # [Float] The average probability of the mutations assigned to a SBS, DBS, and ID signature.
@@ -1293,6 +1296,7 @@ def runAnalyses(genome, # [String] The reference genome used for the topography 
                 plot_replication_strand_bias = False, # [Boolean] Generate replication strand asymmetry plots when True.
                 plot_transcription_strand_bias = False, # [Boolean] Generate transcription strand asymmetry and genic versus intergenic regions plots when True.
                 plot_processivity = False, # [Boolean] Generate strand-coordinated mutagenesis plots when True.
+                plot_region = False,
                 using_pyranges = False, # this feature will be deleted in the github uploaded version. used for testing purposes
                 step1_matgen_real_data = True, # [Boolean] Run SigProfilerMatrixGenerator to generate matrices for the real mutations when True.
                 step2_gen_sim_data = True, # [Boolean] Run SigProfilerSimulator to generate simulated mutations when True.
@@ -1382,12 +1386,12 @@ def runAnalyses(genome, # [String] The reference genome used for the topography 
     plot_sample_based = False # plot figures for each sample, this is not fully implemenyed and tested, therefore False
     mutation_annotation_integration = False
 
-    #########################################
-    region_analysis = False
-    plot_region = False
-    region_type = None
-    region_file_path = None
-
+    # #########################################
+    # region_analysis = False
+    # plot_region = False
+    # region_type = None
+    # region_file_path = None
+    #
     # region_type = MIRNA
     # region_type = LNCRNA
     #
@@ -1410,7 +1414,7 @@ def runAnalyses(genome, # [String] The reference genome used for the topography 
     #         region_file_path = os.path.join(
     #             '/tscc/lustre/restricted/alexandrov-ddn/users/burcak/data/mirbase/GRCh37/cost_transpan_juansainz',
     #             'hsa.gff3')
-    #########################################
+    # #########################################
 
     ############################## Log and Error Files #######################################
     time_stamp = datetime.date.today()
@@ -3511,6 +3515,7 @@ def runAnalyses(genome, # [String] The reference genome used for the topography 
                     nucleosome,
                     region_analysis,
                     region_type,
+                    region_file_path,
                     replication_time,
                     replication_strand_bias,
                     transcription_strand_bias,
@@ -3608,6 +3613,7 @@ def plot_topography_figures(genome,
                 nucleosome,
                 region_analysis,
                 region_type,
+                region_file_path,
                 replication_time,
                 replication_strand_bias,
                 transcription_strand_bias,
@@ -3664,12 +3670,12 @@ def plot_topography_figures(genome,
         if delete_old:
             deleteOldFigures(outputDir, jobname, region_type)
 
-
         annotated_regions_figures(genome,
                                   outputDir,
                                   jobname,
                                   numberofSimulations,
                                   region_type,
+                                  region_file_path,
                                   log_file,
                                   verbose)
 

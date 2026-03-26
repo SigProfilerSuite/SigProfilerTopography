@@ -626,7 +626,7 @@ def annotated_region_analysis(genome,
     allSims_dinucsSignature_accumulated_num_of_hits_np_array = np.zeros((numofSimulations+1, number_of_dbs_signatures + 1, num_of_annotated_regions))
     allSims_indelsSignature_accumulated_num_of_hits_np_array = np.zeros((numofSimulations+1, number_of_id_signatures + 1, num_of_annotated_regions))
 
-    # accumulate number of hits in the annotated regions comuing from all mutations in all chromosomes
+    # accumulate number of hits in the annotated regions coming from all mutations in all chromosomes
     def accumulate_apply_async_result_vectorization(simulatonBased_num_of_hits_arrays_list):
         try:
             chrLong = simulatonBased_num_of_hits_arrays_list[0]

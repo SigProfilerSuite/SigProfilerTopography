@@ -802,11 +802,6 @@ def plot_highly_mutated_annotated_regions_figure(outputDir,
                                                                                                            significance_level)
 
 
-    print('DEBUG annotated_regions_sorted_list:', annotated_regions_sorted_list)
-    print('DEBUG signatures_array:', signatures_array)
-    print('DEBUG circle_radius_array:', circle_radius_array)
-    print('DEBUG circle_color_array:', circle_color_array)
-
     if len(annotated_regions_sorted_list)>0 and signatures_array.shape[0] >0:
 
         plot_colorbar_vertical(outputDir,
@@ -843,16 +838,13 @@ def plot_highly_mutated_annotated_regions_figure(outputDir,
                              signature_type)
 
 
-# left here
-# send parameters from SigProfilerTopography
-# TODO modify to integrate with SigProfilerTopography
-# TODO run from start to end with SigProfilerTopography
-# TODO apply for protein coding genes + miRNAs
+# TODO apply for protein coding genes
 def annotated_regions_figures(genome,
                               outputDir,
                               jobname,
                               numberofSimulations,
                               region_type,
+                              region_file_path,
                               log_file,
                               verbose):
 
@@ -863,54 +855,49 @@ def annotated_regions_figures(genome,
 
     # read
     sbs_signatures_file_path = os.path.join(outputDir, jobname, DATA, Table_SBS_Signature_Cutoff_NumberofMutations_AverageProbability_Filename)
-    sbs_signatures_df = pd.read_csv(sbs_signatures_file_path,
-                                sep='\t',
-                                header=0,
-                                dtype={'cutoff': np.float32,
-                                       'signature': str,
-                                       'number_of_mutations': np.int32,
-                                       'average_probability': np.float32})
+    if os.path.exists(sbs_signatures_file_path):
+        sbs_signatures_df = pd.read_csv(sbs_signatures_file_path,
+                                    sep='\t',
+                                    header=0,
+                                    dtype={'cutoff': np.float32,
+                                           'signature': str,
+                                           'number_of_mutations': np.int32,
+                                           'average_probability': np.float32})
 
-    sbs_signatures = sbs_signatures_df['signature'].unique().tolist()
-    sbs_signatures.append('aggregatedsubstitutions')
-    sbs_signature_type = 'subs'
+        sbs_signatures = sbs_signatures_df['signature'].unique().tolist()
+        sbs_signatures.append('aggregatedsubstitutions')
+        sbs_signature_type = 'subs'
 
     dbs_signatures_file_path = os.path.join(outputDir, jobname, DATA, Table_DBS_Signature_Cutoff_NumberofMutations_AverageProbability_Filename)
-    dbs_signatures_df = pd.read_csv(dbs_signatures_file_path,
-                                sep='\t',
-                                header=0,
-                                dtype={'cutoff': np.float32,
-                                       'signature': str,
-                                       'number_of_mutations': np.int32,
-                                       'average_probability': np.float32})
+    if os.path.exists(dbs_signatures_file_path):
+        dbs_signatures_df = pd.read_csv(dbs_signatures_file_path,
+                                    sep='\t',
+                                    header=0,
+                                    dtype={'cutoff': np.float32,
+                                           'signature': str,
+                                           'number_of_mutations': np.int32,
+                                           'average_probability': np.float32})
 
-    dbs_signatures = dbs_signatures_df['signature'].unique().tolist()
-    dbs_signatures.append('aggregateddinucs')
-    dbs_signature_type = 'dinucs'
+        dbs_signatures = dbs_signatures_df['signature'].unique().tolist()
+        dbs_signatures.append('aggregateddinucs')
+        dbs_signature_type = 'dinucs'
 
     id_signatures_file_path = os.path.join(outputDir, jobname, DATA, Table_ID_Signature_Cutoff_NumberofMutations_AverageProbability_Filename)
-    id_signatures_df = pd.read_csv(id_signatures_file_path,
-                                sep='\t',
-                                header=0,
-                                dtype={'cutoff': np.float32,
-                                       'signature': str,
-                                       'number_of_mutations': np.int32,
-                                       'average_probability': np.float32})
+    if os.path.exists(id_signatures_file_path):
+        id_signatures_df = pd.read_csv(id_signatures_file_path,
+                                    sep='\t',
+                                    header=0,
+                                    dtype={'cutoff': np.float32,
+                                           'signature': str,
+                                           'number_of_mutations': np.int32,
+                                           'average_probability': np.float32})
 
-    id_signatures = id_signatures_df['signature'].unique().tolist()
-    id_signatures.append('aggregatedindels')
-    id_signature_type = 'indels'
+        id_signatures = id_signatures_df['signature'].unique().tolist()
+        id_signatures.append('aggregatedindels')
+        id_signature_type = 'indels'
+
 
     if region_type == LNCRNA:
-        if genome == GRCh38:
-            region_file_path = os.path.join(
-                '/tscc/lustre/restricted/alexandrov-ddn/users/burcak/data/GENCODE/GRCh38/lncRNA',
-                'gencode.v49.long_noncoding_RNAs.gff3')
-
-        elif genome == GRCh37:
-            region_file_path = os.path.join(
-                '/tscc/lustre/restricted/alexandrov-ddn/users/burcak/data/GENCODE/GRCh37/lncRNA',
-                'gencode.v49lift37.long_noncoding_RNAs.gff3')
 
         annotated_region_df = read_lncRNA_annotation_file(region_file_path)
         annotated_region_df['length'] = annotated_region_df['end'] - annotated_region_df['start'] + 1
@@ -922,15 +909,6 @@ def annotated_regions_figures(genome,
 
 
     elif region_type == MIRNA:
-        if genome == GRCh38:
-            region_file_path = os.path.join(
-                '/tscc/lustre/restricted/alexandrov-ddn/users/burcak/data/mirbase/GRCh38/cost_transpan_juansainz',
-                'hsa.gff3')
-
-        elif genome == GRCh37:
-            region_file_path = os.path.join(
-                '/tscc/lustre/restricted/alexandrov-ddn/users/burcak/data/mirbase/GRCh37/cost_transpan_juansainz',
-                'hsa.gff3')
 
         annotated_region_df = read_miRNA_annotation_file(region_file_path)
         annotated_region_df['length'] = annotated_region_df['end'] - annotated_region_df['start'] + 1
@@ -941,10 +919,6 @@ def annotated_regions_figures(genome,
             annotated_region_df, 'ID')
 
 
-
-    print('DEBUG new num_of_annotated_regions:', num_of_annotated_regions)
-    print('DEBUG new len(ordered_annotated_regions_array):', len(ordered_annotated_regions_array))
-    print('DEBUG new ordered_annotated_regions_array:', ordered_annotated_regions_array)
 
     # signatures of interest
     # signatures = ['SBS1', 'SBS2', 'SBS3', 'SBS5', 'SBS13', 'SBS16', 'SBS17a', 'SBS17b', 'SBS18', 'SBS40', 'aggregatedsubstitutions']
@@ -983,74 +957,77 @@ def annotated_regions_figures(genome,
     cmap = cm.get_cmap('Reds')
     cmap = truncate_colormap(cmap, 0.2, 1)
 
-    plot_highly_mutated_annotated_regions_figure(outputDir,
-                                                 jobname,
-                                                 numberofSimulations,
-                                                 region_type,
-                                                 genome_length,
-                                                 sbs_signatures,
-                                                 sbs_signature_type,
-                                                 sbs_signatures_df,
-                                                 ordered_annotated_regions_array,
-                                                 annotated_region_2_length_dict,
-                                                 run_parallel,
-                                                 num_of_best_annotated_regions_per_signature,
-                                                 pvalue_column_of_interest,
-                                                 column_for_sorting,
-                                                 column_for_sorting_ascending,
-                                                 column_for_circle_radius,
-                                                 column_for_circle_color,
-                                                 column_for_significance_level,
-                                                 significance_level,
-                                                 radius_adjustment_value,
-                                                 cmap,
-                                                 colorbar_v_min,
-                                                 colorbar_v_max)
+    if os.path.exists(sbs_signatures_file_path):
+        plot_highly_mutated_annotated_regions_figure(outputDir,
+                                                     jobname,
+                                                     numberofSimulations,
+                                                     region_type,
+                                                     genome_length,
+                                                     sbs_signatures,
+                                                     sbs_signature_type,
+                                                     sbs_signatures_df,
+                                                     ordered_annotated_regions_array,
+                                                     annotated_region_2_length_dict,
+                                                     run_parallel,
+                                                     num_of_best_annotated_regions_per_signature,
+                                                     pvalue_column_of_interest,
+                                                     column_for_sorting,
+                                                     column_for_sorting_ascending,
+                                                     column_for_circle_radius,
+                                                     column_for_circle_color,
+                                                     column_for_significance_level,
+                                                     significance_level,
+                                                     radius_adjustment_value,
+                                                     cmap,
+                                                     colorbar_v_min,
+                                                     colorbar_v_max)
 
-    plot_highly_mutated_annotated_regions_figure(outputDir,
-                                                 jobname,
-                                                 numberofSimulations,
-                                                 region_type,
-                                                 genome_length,
-                                                 dbs_signatures,
-                                                 dbs_signature_type,
-                                                 dbs_signatures_df,
-                                                 ordered_annotated_regions_array,
-                                                 annotated_region_2_length_dict,
-                                                 run_parallel,
-                                                 num_of_best_annotated_regions_per_signature,
-                                                 pvalue_column_of_interest,
-                                                 column_for_sorting,
-                                                 column_for_sorting_ascending,
-                                                 column_for_circle_radius,
-                                                 column_for_circle_color,
-                                                 column_for_significance_level,
-                                                 significance_level,
-                                                 radius_adjustment_value,
-                                                 cmap,
-                                                 colorbar_v_min,
-                                                 colorbar_v_max)
+    if os.path.exists(dbs_signatures_file_path):
+        plot_highly_mutated_annotated_regions_figure(outputDir,
+                                                     jobname,
+                                                     numberofSimulations,
+                                                     region_type,
+                                                     genome_length,
+                                                     dbs_signatures,
+                                                     dbs_signature_type,
+                                                     dbs_signatures_df,
+                                                     ordered_annotated_regions_array,
+                                                     annotated_region_2_length_dict,
+                                                     run_parallel,
+                                                     num_of_best_annotated_regions_per_signature,
+                                                     pvalue_column_of_interest,
+                                                     column_for_sorting,
+                                                     column_for_sorting_ascending,
+                                                     column_for_circle_radius,
+                                                     column_for_circle_color,
+                                                     column_for_significance_level,
+                                                     significance_level,
+                                                     radius_adjustment_value,
+                                                     cmap,
+                                                     colorbar_v_min,
+                                                     colorbar_v_max)
 
-    plot_highly_mutated_annotated_regions_figure(outputDir,
-                                                 jobname,
-                                                 numberofSimulations,
-                                                 region_type,
-                                                 genome_length,
-                                                 id_signatures,
-                                                 id_signature_type,
-                                                 id_signatures_df,
-                                                 ordered_annotated_regions_array,
-                                                 annotated_region_2_length_dict,
-                                                 run_parallel,
-                                                 num_of_best_annotated_regions_per_signature,
-                                                 pvalue_column_of_interest,
-                                                 column_for_sorting,
-                                                 column_for_sorting_ascending,
-                                                 column_for_circle_radius,
-                                                 column_for_circle_color,
-                                                 column_for_significance_level,
-                                                 significance_level,
-                                                 radius_adjustment_value,
-                                                 cmap,
-                                                 colorbar_v_min,
-                                                 colorbar_v_max)
+    if os.path.exists(id_signatures_file_path):
+        plot_highly_mutated_annotated_regions_figure(outputDir,
+                                                     jobname,
+                                                     numberofSimulations,
+                                                     region_type,
+                                                     genome_length,
+                                                     id_signatures,
+                                                     id_signature_type,
+                                                     id_signatures_df,
+                                                     ordered_annotated_regions_array,
+                                                     annotated_region_2_length_dict,
+                                                     run_parallel,
+                                                     num_of_best_annotated_regions_per_signature,
+                                                     pvalue_column_of_interest,
+                                                     column_for_sorting,
+                                                     column_for_sorting_ascending,
+                                                     column_for_circle_radius,
+                                                     column_for_circle_color,
+                                                     column_for_significance_level,
+                                                     significance_level,
+                                                     radius_adjustment_value,
+                                                     cmap,
+                                                     colorbar_v_min,
+                                                     colorbar_v_max)
