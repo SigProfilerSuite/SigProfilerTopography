@@ -1355,6 +1355,25 @@ def runAnalyses(genome, # [String] The reference genome used for the topography 
 
     current_abs_path = os.path.dirname(os.path.realpath(__file__))
 
+    rp = lambda p: os.path.realpath(p) if p is not None else p
+
+    inputDir                     = rp(inputDir)
+    outputDir                    = rp(outputDir)
+    nucleosome_file              = rp(nucleosome_file)
+    replication_time_signal_file = rp(replication_time_signal_file)
+    replication_time_valley_file = rp(replication_time_valley_file)
+    replication_time_peak_file   = rp(replication_time_peak_file)
+    region_file_path             = rp(region_file_path)
+    sbs_probabilities            = rp(sbs_probabilities)
+    dbs_probabilities            = rp(dbs_probabilities)
+    id_probabilities             = rp(id_probabilities)
+    sbs_signatures               = rp(sbs_signatures)
+    dbs_signatures               = rp(dbs_signatures)
+    id_signatures                = rp(id_signatures)
+    sbs_activities               = rp(sbs_activities)
+    dbs_activities               = rp(dbs_activities)
+    id_activities                = rp(id_activities)
+
     chromSizesDict = getChromSizesDict(genome)
     chromNamesList = list(chromSizesDict.keys())
     chromShortNamesList = getShortNames(chromNamesList)
