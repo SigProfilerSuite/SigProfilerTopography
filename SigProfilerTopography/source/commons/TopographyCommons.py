@@ -2176,6 +2176,8 @@ def fill_signature_cutoff_properties_df(outputDir,
     # Step1 fill the dataframe
     # ['Sample' 'Mutation' 'SBS1' 'SBS2' 'SBS3' 'SBS4' 'SBS5' 'SBS6' 'SBS7a' ...
     signatures = ordered_all_signatures_wrt_probabilities_file_array[2:]
+    print("DEBUG0 ordered_all_signatures_wrt_probabilities_file_array:", ordered_all_signatures_wrt_probabilities_file_array)
+    print('DEBUG1 signatures:', signatures)
 
     # initialize 2D numpy arrays
     all_num_of_mutations_array = np.zeros((len(cutoffs), len(signatures)), np.int64)

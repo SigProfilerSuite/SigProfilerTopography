@@ -1546,6 +1546,10 @@ def plot_heatmap_rows_signatures_columns_pooled_DNA_elements(signature2Biosample
         epigenomics_dna_elements,
         remove_dna_elements_with_all_nans_in_epigemomics_heatmaps)
 
+    print('DEBUG1 average_fold_change_array:', average_fold_change_array)
+    print('DEBUG2 signatures:', signatures)
+    print('DEBUG3 dna_elements:', dna_elements)
+
     # Update ATAC-Seq to Chromatin
     dna_elements = [OPEN_CHROMATIN if ATAC_DNA_ELEMENT in dna_element else dna_element for dna_element in dna_elements]
 
@@ -1563,7 +1567,11 @@ def plot_heatmap_rows_signatures_columns_pooled_DNA_elements(signature2Biosample
         print('average_fold_change_array: %s' %(average_fold_change_array), file=log_out)
         log_out.close()
 
-    fig, ax = plt.subplots(figsize=(len(dna_elements),len(signatures)))
+    cell_size = 1.1  # inches per cell
+    min_height = 3  # minimum figure height in inches
+    fig_width = len(dna_elements) * cell_size
+    fig_height = max(len(signatures) * cell_size, min_height)
+    fig, ax = plt.subplots(figsize=(fig_width, fig_height))
 
     try:
         if verbose:

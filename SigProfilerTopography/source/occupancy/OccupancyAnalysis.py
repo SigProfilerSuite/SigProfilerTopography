@@ -1385,7 +1385,12 @@ def chrbased_data_fill_signal_count_arrays_for_all_mutations_using_pyranges(occu
 
     return SignalArrayAndCountArrayList
 
-
+def get_file_compatible_chrom(chrom_name, has_prefix):
+    if has_prefix and not chrom_name.startswith('chr'):
+        return f"chr{chrom_name}"
+    elif not has_prefix and chrom_name.startswith('chr'):
+        return chrom_name.replace('chr', '')
+    return chrom_name
 
 # requires chrBased_simBased_combined_df_split which can be real split or whole in fact
 # This is common for pool.imap_unordered and pool.apply_async variations
@@ -1464,6 +1469,9 @@ def chrbased_data_fill_signal_count_arrays_for_all_mutations(occupancy_type,
         if (library_file_type == BIGWIG):
             try:
                 library_file_opened_by_pyBigWig = pyBigWig.open(library_file_with_path)
+                header = library_file_opened_by_pyBigWig.chroms()
+                stats = library_file_opened_by_pyBigWig.header()
+
                 if (library_file_opened_by_pyBigWig is not None) and (chrLong in library_file_opened_by_pyBigWig.chroms()):
                     maximum_chrom_size = library_file_opened_by_pyBigWig.chroms()[chrLong]
 
@@ -1542,6 +1550,12 @@ def chrbased_data_fill_signal_count_arrays_for_all_mutations(occupancy_type,
                 log_out = open(log_file, 'a')
                 print('Exception %s' %library_file_with_path, file=log_out)
                 log_out.close()
+
+
+    if library_file_opened_by_pyBigWig:
+        # Check if the chromosomes starts with "chr" or not
+        has_chr_prefix = any(c.startswith('chr') for c in library_file_opened_by_pyBigWig.chroms().keys())
+        chrLong = get_file_compatible_chrom(chrLong, has_chr_prefix)
 
     number_of_sbs_signatures = ordered_sbs_signatures.size
     number_of_dbs_signatures = ordered_dbs_signatures.size

@@ -661,13 +661,15 @@ def readFileInBEDFormat(file_with_path, discard_signal, log_file):
             file_df[SIGNAL] = 1
 
         elif (ncols == 4 and (not discard_signal)):
+            print('DEBUG4')
             print('--- SigProfilerTopography assumes that score column is in the 4th column of this bed file and there is no header', file=log_out)
-            file_df = pd.read_csv(file_with_path,
-                                header=None,
-                                usecols=[0, 1, 2, 3],
-                                names = [CHROM,START,END,SIGNAL],
-                                dtype={0: 'string', 1: np.int32, 2: np.int32, 3: np.float32}, # legacy category
-                                sep='\t')
+            print("DEBUG5 file_with_path:", file_with_path)
+            file_df = pd.read_csv(file_with_path, comment='#', header=None, usecols=[0, 1, 2, 3], names = [CHROM,START,END,SIGNAL], dtype={0: 'string', 1: np.int32, 2: np.int32, 3: np.float32}, sep='\t', skip_blank_lines=True)
+            # file_df = pd.read_csv("GSE140804_Free_MNase_final.bed", comment='#', header=None, usecols=[0, 1, 2, 3], names=["CHROM", "START","END", "SIGNAL"], dtype = {0: 'string', 1: np.int32,2: np.int32,3: np.float32}, sep = '\t', skip_blank_lines = True)
+
+            # df = pd.read_csv(file_with_path, comment='#', sep='\t', header=None, skip_blank_lines=True)
+            print('DEBUG6')
+
 
         elif ((ncols == 10) or (ncols == 9)):
             # ENCODE narrowpeak BED6+4 ncols=10
