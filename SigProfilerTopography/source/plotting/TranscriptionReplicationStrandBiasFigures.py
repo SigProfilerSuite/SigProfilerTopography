@@ -2119,8 +2119,9 @@ def transcription_replication_strand_bias_figures_using_dataframes(outputDir,
         for fold_change_index, fold_change_string in enumerate(fold_change_strings, 0):
             fold_change = fold_change_numbers[fold_change_index]
 
-            # Set percentages for signature mutation_type
-            signature_lagging_versus_leading_df.loc[(signature_lagging_versus_leading_df[ODDS_RATIO].round(2) >= fold_change), fold_change_string] = 1
+            if not signature_lagging_versus_leading_df.empty:
+                # Set percentages for signature mutation_type
+                signature_lagging_versus_leading_df.loc[(signature_lagging_versus_leading_df[ODDS_RATIO].round(2) >= fold_change), fold_change_string] = 1
 
             # Set percentages for type
             type_lagging_versus_leading_df.loc[(type_lagging_versus_leading_df[ODDS_RATIO].round(2) >= fold_change), fold_change_string] = 1
@@ -2176,8 +2177,9 @@ def transcription_replication_strand_bias_figures_using_dataframes(outputDir,
         for fold_change_index, fold_change_string in enumerate(fold_change_strings, 0):
             fold_change = fold_change_numbers[fold_change_index]
 
-            # Set percentages for signature mutation_type
-            signature_transcribed_versus_untranscribed_df.loc[(signature_transcribed_versus_untranscribed_df[ODDS_RATIO].round(2) >= fold_change), fold_change_string] = 1
+            if not signature_transcribed_versus_untranscribed_df.empty:
+                # Set percentages for signature mutation_type
+                signature_transcribed_versus_untranscribed_df.loc[(signature_transcribed_versus_untranscribed_df[ODDS_RATIO].round(2) >= fold_change), fold_change_string] = 1
 
             # Set percentages for type
             type_transcribed_versus_untranscribed_df.loc[(type_transcribed_versus_untranscribed_df[ODDS_RATIO].round(2) >= fold_change), fold_change_string] = 1
@@ -2233,8 +2235,9 @@ def transcription_replication_strand_bias_figures_using_dataframes(outputDir,
         for fold_change_index, fold_change_string in enumerate(fold_change_strings, 0):
             fold_change = fold_change_numbers[fold_change_index]
 
-            # Set percentages for signature mutation_type
-            signature_genic_versus_intergenic_df.loc[(signature_genic_versus_intergenic_df[ODDS_RATIO].round(2) >= fold_change), fold_change_string] = 1
+            if not signature_genic_versus_intergenic_df.empty:
+                # Set percentages for signature mutation_type
+                signature_genic_versus_intergenic_df.loc[(signature_genic_versus_intergenic_df[ODDS_RATIO].round(2) >= fold_change), fold_change_string] = 1
 
             # Set percentages for type
             type_genic_versus_intergenic_df.loc[(type_genic_versus_intergenic_df[ODDS_RATIO].round(2) >= fold_change), fold_change_string] = 1
