@@ -1546,9 +1546,6 @@ def plot_heatmap_rows_signatures_columns_pooled_DNA_elements(signature2Biosample
         epigenomics_dna_elements,
         remove_dna_elements_with_all_nans_in_epigemomics_heatmaps)
 
-    print('DEBUG1 average_fold_change_array:', average_fold_change_array)
-    print('DEBUG2 signatures:', signatures)
-    print('DEBUG3 dna_elements:', dna_elements)
 
     # Update ATAC-Seq to Chromatin
     dna_elements = [OPEN_CHROMATIN if ATAC_DNA_ELEMENT in dna_element else dna_element for dna_element in dna_elements]
@@ -1896,6 +1893,7 @@ def compute_fold_change_with_combined_p_values_plot_heatmaps(combine_p_values_me
     heatmaps_data_dir = os.path.join(outputDir, jobname, DATA, EPIGENOMICSOCCUPANCY)
     heatmaps_output_dir = os.path.join(outputDir, jobname, FIGURE, EPIGENOMICSOCCUPANCY, HEATMAPS)
 
+
     # Step1 Calculate p value using z-test
     # Epigenomics Signatures
     # Epigenomics All Mutations (SUBS, INDELS, DINUCS)
@@ -2104,6 +2102,7 @@ def get_dna_element(dna_element_long, epigenomics_dna_elements, nucleosome_file)
 
 # Used for search for biosamples
 def get_biosample(file_memo, biosample_list, nucleosome_file):
+
     if biosample_list:
         for biosample in biosample_list:
             # biosample_with_underscore= "_%s_" %biosample
@@ -2141,9 +2140,9 @@ def calculate_fold_change_real_over_sim(center,
     sim_avg_count = None
     simulationsHorizontalMeans = None
 
-    biosample=None
-    dna_element=None
-    dna_element_to_be_read=None
+    biosample = None
+    dna_element = None
+    dna_element_to_be_read = None
 
     if occupancy_type == EPIGENOMICSOCCUPANCY:
         biosample = get_biosample(epigenomics_file_memo, epigenomics_biosamples, nucleosome_file)

@@ -1396,7 +1396,7 @@ def runAnalyses(genome, # [String] The reference genome used for the topography 
     remove_outliers = False # for occupancy analysis
     quantile_value = 0.97 # for occupancy analysis
     processivity_calculation_type = CONSIDER_DISTANCE # for strand coordinated mutagenesis. For information only,
-    consider_probability_in_processivity_analysis = True # [Boolean] Mutations with signature probabilities >= cutoff are considered in the strand-coordinated mutagenesis analysis. Cutoffs are signature specific when discreet_mode is True or default_cutoff when discreet_mode is False.
+    consider_probability_in_processivity_analysis = True # [Boolean] Mutations with signature probabilities >= cutoff are considered in the strand-coordinated mutagenesis analysis if set to TRUE. Cutoffs are signature specific when discreet_mode is True or default_cutoff when discreet_mode is False.
 
     chrom_based = True # [boolean] this parameter used by SigProfilerSimulator. chrom_based must be set to True for SigProfilerTopography tool
     seqInfo = True # [boolean] this parameter is used by SPMG and SPS. SPMG and SPS output mutations into a text file that contains the classification for each mutation.
@@ -1684,6 +1684,9 @@ def runAnalyses(genome, # [String] The reference genome used for the topography 
         elif ((nucleosome_file is not None)):
             if (nucleosome_biosample is None):
                 nucleosome_biosample = UNDECLARED
+
+    elif genome == "c_elegans" :
+        nucleosome_biosample = UNDECLARED
 
     # Replication Timing
     if genome == MM10:

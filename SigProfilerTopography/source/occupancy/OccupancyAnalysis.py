@@ -51,6 +51,11 @@ from SigProfilerTopography.source.commons.TopographyCommons import getSample2Sub
 from SigProfilerTopography.source.commons.TopographyCommons import getSample2IndelsSignature2NumberofMutationsDict
 from SigProfilerTopography.source.commons.TopographyCommons import writeSimulationBasedAverageOccupancyUsingNumpyArray
 
+from SigProfilerTopography.source.commons.TopographyCommons import write_chr_based_mutations_df
+from SigProfilerTopography.source.commons.TopographyCommons import SBS
+from SigProfilerTopography.source.commons.TopographyCommons import DBS
+from SigProfilerTopography.source.commons.TopographyCommons import ID
+
 from SigProfilerTopography.source.commons.TopographyCommons import TYPE
 from SigProfilerTopography.source.commons.TopographyCommons import SUBS
 from SigProfilerTopography.source.commons.TopographyCommons import INDELS
@@ -102,6 +107,8 @@ from SigProfilerTopography.source.commons.TopographyCommons import CHROM
 from SigProfilerTopography.source.commons.TopographyCommons import START
 from SigProfilerTopography.source.commons.TopographyCommons import END
 from SigProfilerTopography.source.commons.TopographyCommons import SIGNAL
+
+from SigProfilerTopography.source.commons.TopographyCommons import MUTATION
 
 from SigProfilerTopography.source.occupancy.ChrBasedSignalArrays import readWig_write_derived_from_bedgraph_using_pool_chunks
 from SigProfilerTopography.source.occupancy.ChrBasedSignalArrays import readWig_write_derived_from_bedgraph_using_pool_read_all
@@ -1405,6 +1412,7 @@ def chrbased_data_fill_signal_count_arrays_for_all_mutations(occupancy_type,
                                                              chrBased_simBased_indels_df,
                                                              chromSizesDict,
                                                              library_file_with_path,
+                                                             library_file_memo,
                                                              library_file_type,
                                                              ordered_sbs_signatures,
                                                              ordered_dbs_signatures,
@@ -1564,6 +1572,10 @@ def chrbased_data_fill_signal_count_arrays_for_all_mutations(occupancy_type,
     ###############################################################################
     ################################ Initialization ###############################
     ###############################################################################
+    chrBased_simBased_subs_occupancy_signal_list = None
+    chrBased_simBased_dinucs_occupancy_signal_list = None
+    chrBased_simBased_indels_occupancy_signal_list = None
+
     # Add one more row for the aggregated analysis
     subsSignature_accumulated_signal_np_array = np.zeros((number_of_sbs_signatures + 1, plusorMinus * 2 + 1)) # dtype=float
     dinucsSignature_accumulated_signal_np_array = np.zeros((number_of_dbs_signatures + 1, plusorMinus * 2 + 1)) # dtype=float
@@ -1594,7 +1606,8 @@ def chrbased_data_fill_signal_count_arrays_for_all_mutations(occupancy_type,
 
             subsSignatures_mask_array = np.isin(df_columns, ordered_sbs_signatures)
 
-            [fillSignalArrayAndCountArray_using_list_comp(
+            # provide signal per each mutation
+            chrBased_simBased_subs_occupancy_signal_list = [fillSignalArrayAndCountArray_using_list_comp(
                 row,
                 chrLong,
                 library_file_opened_by_pyBigWig,
@@ -1613,6 +1626,7 @@ def chrbased_data_fill_signal_count_arrays_for_all_mutations(occupancy_type,
                 df_columns,
                 occupancy_calculation_type) for row in chrBased_simBased_subs_df[df_columns].values]
 
+
         # For Dinucs
         if ((chrBased_simBased_dinucs_df is not None) and (not chrBased_simBased_dinucs_df.empty)):
 
@@ -1621,7 +1635,7 @@ def chrbased_data_fill_signal_count_arrays_for_all_mutations(occupancy_type,
 
             dinucsSignatures_mask_array = np.isin(df_columns, ordered_dbs_signatures)
 
-            [fillSignalArrayAndCountArray_using_list_comp(
+            chrBased_simBased_dinucs_occupancy_signal_list = [fillSignalArrayAndCountArray_using_list_comp(
                 row,
                 chrLong,
                 library_file_opened_by_pyBigWig,
@@ -1648,7 +1662,7 @@ def chrbased_data_fill_signal_count_arrays_for_all_mutations(occupancy_type,
 
             indelsSignatures_mask_array = np.isin(df_columns, ordered_id_signatures)
 
-            [fillSignalArrayAndCountArray_using_list_comp(
+            chrBased_simBased_indels_occupancy_signal_list =  [fillSignalArrayAndCountArray_using_list_comp(
                 row,
                 chrLong,
                 library_file_opened_by_pyBigWig,
@@ -1684,11 +1698,86 @@ def chrbased_data_fill_signal_count_arrays_for_all_mutations(occupancy_type,
         print('\tVerbose %s Worker pid %s took %f seconds chrLong:%s simNum:%d\n' % (occupancy_type,str(os.getpid()), (time.time() - start_time), chrLong, simNum), file=log_out)
         log_out.close()
 
+    # DEBUG
+    chrBased_simBased_subs_occupancy_signal_array = np.array(chrBased_simBased_subs_occupancy_signal_list)
+    chrBased_simBased_dinucs_occupancy_signal_array = np.array(chrBased_simBased_dinucs_occupancy_signal_list)
+    chrBased_simBased_indels_occupancy_signal_array = np.array(chrBased_simBased_indels_occupancy_signal_list)
+
+    if library_file_memo:
+        EPIGENOMICS_SIGNAL = 'EpigenomicsSignal' + "_" + library_file_memo
+    else:
+        EPIGENOMICS_SIGNAL = 'NucleosomeSignal'
+
+    if chrBased_simBased_subs_df is not None:
+        chrBased_simBased_subs_df[EPIGENOMICS_SIGNAL] = chrBased_simBased_subs_occupancy_signal_array
+
+        # 1. Get the current column order as a list
+        columns = chrBased_simBased_subs_df.columns.tolist()
+
+        # 2. Find the index positions of two specific columns
+        mutation_index = columns.index(MUTATION)
+        epigenomics_signal_index = columns.index(EPIGENOMICS_SIGNAL)
+
+        # 3. If EPIGENOMICS_SIGNAL column appears AFTER MUTATION column,
+        #    move it to sit right BEFORE the MUTATION colu
+        if epigenomics_signal_index > mutation_index:
+            columns.insert(mutation_index, columns.pop(columns.index(EPIGENOMICS_SIGNAL)))
+
+        # 4. Remove the SIMULATION_NUMBER column entirely
+        columns.pop(columns.index(SIMULATION_NUMBER))
+        chrBased_simBased_subs_df = chrBased_simBased_subs_df[columns]
+
+    if chrBased_simBased_dinucs_df is not None:
+        chrBased_simBased_dinucs_df[EPIGENOMICS_SIGNAL] = chrBased_simBased_dinucs_occupancy_signal_array
+
+        # 1. Get the current column order as a list
+        columns = chrBased_simBased_dinucs_df.columns.tolist()
+
+        # 2. Find the index positions of two specific columns
+        mutation_index = columns.index(MUTATION)
+        epigenomics_signal_index = columns.index(EPIGENOMICS_SIGNAL)
+
+        # 3. If EPIGENOMICS_SIGNAL column appears AFTER MUTATION column,
+        #    move it to sit right BEFORE the MUTATION colu
+        if epigenomics_signal_index > mutation_index:
+            columns.insert(mutation_index, columns.pop(columns.index(EPIGENOMICS_SIGNAL)))
+
+        # 4. Remove the SIMULATION_NUMBER column entirely
+        columns.pop(columns.index(SIMULATION_NUMBER))
+        chrBased_simBased_dinucs_df = chrBased_simBased_dinucs_df[columns]
+
+    if chrBased_simBased_indels_df is not None:
+        chrBased_simBased_indels_df[EPIGENOMICS_SIGNAL] = chrBased_simBased_indels_occupancy_signal_array
+
+        # 1. Get the current column order as a list
+        columns = chrBased_simBased_indels_df.columns.tolist()
+
+        # 2. Find the index positions of two specific columns
+        mutation_index = columns.index(MUTATION)
+        epigenomics_signal_index = columns.index(EPIGENOMICS_SIGNAL)
+
+        # 3. If EPIGENOMICS_SIGNAL column appears AFTER MUTATION column,
+        #    move it to sit right BEFORE the MUTATION colu
+        if epigenomics_signal_index > mutation_index:
+            columns.insert(mutation_index, columns.pop(columns.index(EPIGENOMICS_SIGNAL)))
+
+        # 4. Remove the SIMULATION_NUMBER column entirely
+        columns.pop(columns.index(SIMULATION_NUMBER))
+        chrBased_simBased_indels_df = chrBased_simBased_indels_df[columns]
+
+
+
     # Initialzie the list, you will return this list
     SignalArrayAndCountArrayList = []
 
     SignalArrayAndCountArrayList.append(chrLong)
     SignalArrayAndCountArrayList.append(simNum)
+
+    # DEBUG
+    SignalArrayAndCountArrayList.append(chrBased_simBased_subs_df)
+    SignalArrayAndCountArrayList.append(chrBased_simBased_dinucs_df)
+    SignalArrayAndCountArrayList.append(chrBased_simBased_indels_df)
+
     SignalArrayAndCountArrayList.append(subsSignature_accumulated_signal_np_array)
     SignalArrayAndCountArrayList.append(dinucsSignature_accumulated_signal_np_array)
     SignalArrayAndCountArrayList.append(indelsSignature_accumulated_signal_np_array)
@@ -1900,6 +1989,7 @@ def chrbased_data_fill_signal_count_arrays_for_all_mutations_read_mutations(
         samples_of_interest,
         chromSizesDict,
         library_file_with_path,
+        library_file_memo,
         library_file_type,
         ordered_sbs_signatures,
         ordered_dbs_signatures,
@@ -1940,6 +2030,7 @@ def chrbased_data_fill_signal_count_arrays_for_all_mutations_read_mutations(
                                                                         chrBased_simBased_indels_df,
                                                                         chromSizesDict,
                                                                         library_file_with_path,
+                                                                        library_file_memo,
                                                                         library_file_type,
                                                                         ordered_sbs_signatures,
                                                                         ordered_dbs_signatures,
@@ -2661,7 +2752,10 @@ def fillSignalArrayAndCountArray_using_list_comp(
                           discreet_mode,
                           default_cutoff)
 
+        return window_array[plusOrMinus]
 
+    else:
+        return np.nan
 
 
 def check_download_chrbased_npy_atac_seq_files(outputDir,jobname,occupancy_type,atac_seq_file,chromNamesList):
@@ -3374,22 +3468,38 @@ def occupancyAnalysis(genome,
     def accumulate_apply_async_result_vectorization(simulatonBased_SignalArrayAndCountArrayList):
         try:
             chrLong = simulatonBased_SignalArrayAndCountArrayList[0]
-            simNum = simulatonBased_SignalArrayAndCountArrayList[1]
-            subsSignature_accumulated_signal_np_array = simulatonBased_SignalArrayAndCountArrayList[2]
-            dinucsSignature_accumulated_signal_np_array = simulatonBased_SignalArrayAndCountArrayList[3]
-            indelsSignature_accumulated_signal_np_array = simulatonBased_SignalArrayAndCountArrayList[4]
-            subsSignature_accumulated_count_np_array = simulatonBased_SignalArrayAndCountArrayList[5]
-            dinucsSignature_accumulated_count_np_array = simulatonBased_SignalArrayAndCountArrayList[6]
-            indelsSignature_accumulated_count_np_array = simulatonBased_SignalArrayAndCountArrayList[7]
+            sim_num = simulatonBased_SignalArrayAndCountArrayList[1]
+
+            chrBased_simBased_subs_df = simulatonBased_SignalArrayAndCountArrayList[2]
+            chrBased_simBased_dinucs_df = simulatonBased_SignalArrayAndCountArrayList[3]
+            chrBased_simBased_indels_df = simulatonBased_SignalArrayAndCountArrayList[4]
+
+            subsSignature_accumulated_signal_np_array = simulatonBased_SignalArrayAndCountArrayList[5]
+            dinucsSignature_accumulated_signal_np_array = simulatonBased_SignalArrayAndCountArrayList[6]
+            indelsSignature_accumulated_signal_np_array = simulatonBased_SignalArrayAndCountArrayList[7]
+            subsSignature_accumulated_count_np_array = simulatonBased_SignalArrayAndCountArrayList[8]
+            dinucsSignature_accumulated_count_np_array = simulatonBased_SignalArrayAndCountArrayList[9]
+            indelsSignature_accumulated_count_np_array = simulatonBased_SignalArrayAndCountArrayList[10]
+
+            # DEBUG
+            # save chrom based sim based files
+            if chrBased_simBased_subs_df is not None:
+                write_chr_based_mutations_df(outputDir, jobname, chrLong, SBS, sim_num, chrBased_simBased_subs_df)
+
+            if chrBased_simBased_dinucs_df is not None:
+                write_chr_based_mutations_df(outputDir, jobname, chrLong, DBS, sim_num, chrBased_simBased_dinucs_df)
+
+            if chrBased_simBased_indels_df is not None:
+                write_chr_based_mutations_df(outputDir, jobname, chrLong, ID, sim_num, chrBased_simBased_indels_df)
 
             # Accumulation
-            allSims_subsSignature_accumulated_signal_np_array[simNum] += subsSignature_accumulated_signal_np_array
-            allSims_dinucsSignature_accumulated_signal_np_array[simNum] += dinucsSignature_accumulated_signal_np_array
-            allSims_indelsSignature_accumulated_signal_np_array[simNum] += indelsSignature_accumulated_signal_np_array
+            allSims_subsSignature_accumulated_signal_np_array[sim_num] += subsSignature_accumulated_signal_np_array
+            allSims_dinucsSignature_accumulated_signal_np_array[sim_num] += dinucsSignature_accumulated_signal_np_array
+            allSims_indelsSignature_accumulated_signal_np_array[sim_num] += indelsSignature_accumulated_signal_np_array
 
-            allSims_subsSignature_accumulated_count_np_array[simNum] += subsSignature_accumulated_count_np_array
-            allSims_dinucsSignature_accumulated_count_np_array[simNum] += dinucsSignature_accumulated_count_np_array
-            allSims_indelsSignature_accumulated_count_np_array[simNum] += indelsSignature_accumulated_count_np_array
+            allSims_subsSignature_accumulated_count_np_array[sim_num] += subsSignature_accumulated_count_np_array
+            allSims_dinucsSignature_accumulated_count_np_array[sim_num] += dinucsSignature_accumulated_count_np_array
+            allSims_indelsSignature_accumulated_count_np_array[sim_num] += indelsSignature_accumulated_count_np_array
             # print('ACCUMULATION chrLong:%s simNum:%d ENDS' %(chrLong,simNum))
 
         except Exception as e:
@@ -3405,17 +3515,18 @@ def occupancyAnalysis(genome,
             numofProcesses = multiprocessing.cpu_count()
             pool = multiprocessing.Pool(processes=numofProcesses)
 
-            for simNum, chrLong in sim_num_chr_tuples:
+            for sim_num, chrLong in sim_num_chr_tuples:
                 jobs.append(pool.apply_async(chrbased_data_fill_signal_count_arrays_for_all_mutations_read_mutations,
                                              args=(occupancy_type,
                                                    occupancy_calculation_type,
                                                    outputDir,
                                                    jobname,
                                                    chrLong,
-                                                   simNum,
+                                                   sim_num,
                                                    samples_of_interest,
                                                    chromSizesDict,
                                                    library_file_with_path,
+                                                   library_file_memo,
                                                    library_file_type,
                                                    ordered_sbs_signatures,
                                                    ordered_dbs_signatures,
@@ -3438,7 +3549,7 @@ def occupancyAnalysis(genome,
             numofProcesses = multiprocessing.cpu_count()
             pool = multiprocessing.Pool(processes=numofProcesses)
 
-            for chrLong, simNum, splitIndex in job_tuples:
+            for chrLong, sim_num, splitIndex in job_tuples:
                 jobs.append(
                     pool.apply_async(chrbased_data_fill_signal_count_arrays_for_all_mutations_read_mutations_split,
                                      args=(occupancy_type,
@@ -3446,7 +3557,7 @@ def occupancyAnalysis(genome,
                                            outputDir,
                                            jobname,
                                            chrLong,
-                                           simNum,
+                                           sim_num,
                                            splitIndex,
                                            chromSizesDict,
                                            library_file_with_path,
@@ -3468,16 +3579,17 @@ def occupancyAnalysis(genome,
 
     else:
         # Sequential mode for profiling, debugging and testing purposes
-        for simNum, chrLong in sim_num_chr_tuples:
+        for sim_num, chrLong in sim_num_chr_tuples:
             simulatonBased_SignalArrayAndCountArrayList = chrbased_data_fill_signal_count_arrays_for_all_mutations_read_mutations(occupancy_type,
                                    occupancy_calculation_type,
                                    outputDir,
                                    jobname,
                                    chrLong,
-                                   simNum,
+                                   sim_num,
                                    samples_of_interest,
                                    chromSizesDict,
                                    library_file_with_path,
+                                   library_file_memo,
                                    library_file_type,
                                    ordered_sbs_signatures,
                                    ordered_dbs_signatures,

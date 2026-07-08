@@ -64,6 +64,7 @@ def findProcessiveGroupsForApplySyncWithDistance(processivity_inter_mutational_d
     # sampleBased_chrBased_subs_df['Signature_Max_Pro'] = sampleBased_chrBased_subs_df[signatures_list].idxmax(axis=1)
     # sampleBased_chrBased_subs_df['Max_Pro'] = sampleBased_chrBased_subs_df[signatures_list].max(axis=1)
 
+    # Filter mutations
     if consider_probability_in_processivity_analysis:
         sampleBased_chrBased_subs_df = sampleBased_chrBased_subs_df[sampleBased_chrBased_subs_df['Probability'] >= sampleBased_chrBased_subs_df['Signature'].map(subsSignature_cutoff_numberofmutations_averageprobability_df.set_index('signature')['cutoff'])]
 
