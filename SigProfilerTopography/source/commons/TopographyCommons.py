@@ -592,6 +592,11 @@ ID83_mutation_types_np_array = np.array(['1:Del:C:0', '1:Del:C:1', '1:Del:C:2', 
                                          '4:Del:M:1', '4:Del:M:2', '4:Del:M:3', '5:Del:M:1', '5:Del:M:2',
                                          '5:Del:M:3', '5:Del:M:4', '5:Del:M:5'])
 
+all_mutation_types_np_array = np.concatenate((SBS96_mutation_types_np_array,
+                                              DBS78_mutation_types_np_array,
+                                              ID83_mutation_types_np_array), axis=None)
+
+
 COMPUTATION_CHROMOSOMES_SEQUENTIAL_ALL_SIMULATIONS_PARALLEL = 'COMPUTATION_CHROMOSOMES_SEQUENTIAL_ALL_SIMULATIONS_PARALLEL'
 USING_IMAP_UNORDERED='USING_IMAP_UNORDERED'
 USING_APPLY_ASYNC='USING_APPLY_ASYNC'
@@ -3013,6 +3018,7 @@ def write_sample_type_strand_bias_np_array_as_dataframe(output_dir,
                     all_sims_sample_id_signature_mutation_type_strand_np_array
                     ):
 
+
     # Fill type2Strand2ListDict using all_sims_all_types_strand_np_arrays_list
     sample2Type2Strand2ListDict = {}
 
@@ -3035,13 +3041,13 @@ def write_sample_type_strand_bias_np_array_as_dataframe(output_dir,
                                         indices = np.where(np.char.find(SBS96_mutation_types_np_array, '[' + my_type + ']') != -1)[0]
                                         strand_list[0] = np.sum(all_sims_sample_mutation_type_strand_np_array[sim_index, sample_index, indices, strand_index])
                                     elif my_type in SBS96_mutation_types_np_array:
-                                        my_type_index = np.where(SBS96_mutation_types_np_array == my_type)[0][0]
+                                        my_type_index = np.where(all_mutation_types_np_array == my_type)[0][0]
                                         strand_list[0] = np.sum(all_sims_sample_mutation_type_strand_np_array[sim_index, sample_index, my_type_index, strand_index])
                                     elif my_type in DBS78_mutation_types_np_array:
-                                        my_type_index = np.where(DBS78_mutation_types_np_array == my_type)[0][0]
+                                        my_type_index = np.where(all_mutation_types_np_array == my_type)[0][0]
                                         strand_list[0] = np.sum(all_sims_sample_mutation_type_strand_np_array[sim_index, sample_index, my_type_index, strand_index])
                                     elif my_type in ID83_mutation_types_np_array:
-                                        my_type_index = np.where(ID83_mutation_types_np_array == my_type)[0][0]
+                                        my_type_index = np.where(all_mutation_types_np_array == my_type)[0][0]
                                         strand_list[0] = np.sum(all_sims_sample_mutation_type_strand_np_array[sim_index, sample_index, my_type_index, strand_index])
                                     elif my_type in ordered_sbs_signatures_np_array:
                                         signature_index = np.where(ordered_sbs_signatures_np_array == my_type)[0][0]
@@ -3060,13 +3066,13 @@ def write_sample_type_strand_bias_np_array_as_dataframe(output_dir,
                                         indices = np.where(np.char.find(SBS96_mutation_types_np_array, '[' + my_type + ']') != -1)[0]
                                         strand_list[1].append(np.sum(all_sims_sample_mutation_type_strand_np_array[sim_index, sample_index, indices, strand_index]))
                                     elif my_type in SBS96_mutation_types_np_array:
-                                        my_type_index = np.where(SBS96_mutation_types_np_array == my_type)[0][0]
+                                        my_type_index = np.where(all_mutation_types_np_array == my_type)[0][0]
                                         strand_list[1].append(np.sum(all_sims_sample_mutation_type_strand_np_array[sim_index, sample_index, my_type_index, strand_index]))
                                     elif my_type in DBS78_mutation_types_np_array:
-                                        my_type_index = np.where(DBS78_mutation_types_np_array == my_type)[0][0]
+                                        my_type_index = np.where(all_mutation_types_np_array == my_type)[0][0]
                                         strand_list[1].append(np.sum(all_sims_sample_mutation_type_strand_np_array[sim_index, sample_index, my_type_index, strand_index]))
                                     elif my_type in ID83_mutation_types_np_array:
-                                        my_type_index = np.where(ID83_mutation_types_np_array == my_type)[0][0]
+                                        my_type_index = np.where(all_mutation_types_np_array == my_type)[0][0]
                                         strand_list[1].append(np.sum(all_sims_sample_mutation_type_strand_np_array[sim_index, sample_index, my_type_index, strand_index]))
                                     elif my_type in ordered_sbs_signatures_np_array:
                                         signature_index = np.where(ordered_sbs_signatures_np_array == my_type)[0][0]
@@ -3468,13 +3474,13 @@ def fill_sample_type_2_strand_2_list_dict(sample,
             indices = np.where(np.char.find(SBS96_mutation_types_np_array, '[' + my_type + ']') != -1)[0]
             sample2Type2Strand2ListDict[sample][my_type][strand][0] = np.sum(all_sims_sample_mutation_type_strand_np_array[sim_index, sample_index, indices, strand_index])
         elif my_type in SBS96_mutation_types_np_array:
-            my_type_index = np.where(SBS96_mutation_types_np_array == my_type)[0][0]
+            my_type_index = np.where(all_mutation_types_np_array == my_type)[0][0]
             sample2Type2Strand2ListDict[sample][my_type][strand][0] = np.sum(all_sims_sample_mutation_type_strand_np_array[sim_index, sample_index, my_type_index, strand_index])
         elif my_type in DBS78_mutation_types_np_array:
-            my_type_index = np.where(DBS78_mutation_types_np_array == my_type)[0][0]
+            my_type_index = np.where(all_mutation_types_np_array == my_type)[0][0]
             sample2Type2Strand2ListDict[sample][my_type][strand][0] = np.sum(all_sims_sample_mutation_type_strand_np_array[sim_index, sample_index, my_type_index, strand_index])
         elif my_type in ID83_mutation_types_np_array:
-            my_type_index = np.where(ID83_mutation_types_np_array == my_type)[0][0]
+            my_type_index = np.where(all_mutation_types_np_array == my_type)[0][0]
             sample2Type2Strand2ListDict[sample][my_type][strand][0] = np.sum(all_sims_sample_mutation_type_strand_np_array[sim_index, sample_index, my_type_index, strand_index])
         elif my_type in ordered_sbs_signatures_np_array:
             signature_index = np.where(ordered_sbs_signatures_np_array == my_type)[0][0]
@@ -3492,13 +3498,13 @@ def fill_sample_type_2_strand_2_list_dict(sample,
             indices = np.where(np.char.find(SBS96_mutation_types_np_array, '[' + my_type + ']') != -1)[0]
             sample2Type2Strand2ListDict[sample][my_type][strand][1].append(np.sum(all_sims_sample_mutation_type_strand_np_array[sim_index, sample_index, indices, strand_index]))
         elif my_type in SBS96_mutation_types_np_array:
-            my_type_index = np.where(SBS96_mutation_types_np_array == my_type)[0][0]
+            my_type_index = np.where(all_mutation_types_np_array == my_type)[0][0]
             sample2Type2Strand2ListDict[sample][my_type][strand][1].append(np.sum(all_sims_sample_mutation_type_strand_np_array[sim_index, sample_index, my_type_index, strand_index]))
         elif my_type in DBS78_mutation_types_np_array:
-            my_type_index = np.where(DBS78_mutation_types_np_array == my_type)[0][0]
+            my_type_index = np.where(all_mutation_types_np_array == my_type)[0][0]
             sample2Type2Strand2ListDict[sample][my_type][strand][1].append(np.sum(all_sims_sample_mutation_type_strand_np_array[sim_index, sample_index, my_type_index, strand_index]))
         elif my_type in ID83_mutation_types_np_array:
-            my_type_index = np.where(ID83_mutation_types_np_array == my_type)[0][0]
+            my_type_index = np.where(all_mutation_types_np_array == my_type)[0][0]
             sample2Type2Strand2ListDict[sample][my_type][strand][1].append(np.sum(all_sims_sample_mutation_type_strand_np_array[sim_index, sample_index, my_type_index, strand_index]))
         elif my_type in ordered_sbs_signatures_np_array:
             signature_index = np.where(ordered_sbs_signatures_np_array == my_type)[0][0]
@@ -3527,6 +3533,8 @@ def fill_type_2_strand_2_list_dict(my_type,
                                  all_sims_sample_id_signature_mutation_type_strand_np_array,
                                  sim_index,
                                  strand_index):
+
+
     if (sim_index == 0):
         # type2Strand2ListDict[my_type][strand][0] = all_sims_all_types_strand_np_array[sim_index, type_index]
         # Set real_data
@@ -3534,13 +3542,13 @@ def fill_type_2_strand_2_list_dict(my_type,
             indices = np.where(np.char.find(SBS96_mutation_types_np_array, '[' + my_type + ']') != -1)[0]
             type2Strand2ListDict[my_type][strand][0] = np.sum(all_sims_sample_mutation_type_strand_np_array[sim_index, :, indices, strand_index])
         elif my_type in SBS96_mutation_types_np_array:
-            my_type_index = np.where(SBS96_mutation_types_np_array == my_type)[0][0]
+            my_type_index = np.where(all_mutation_types_np_array == my_type)[0][0]
             type2Strand2ListDict[my_type][strand][0] = np.sum(all_sims_sample_mutation_type_strand_np_array[sim_index, :, my_type_index, strand_index])
         elif my_type in DBS78_mutation_types_np_array:
-            my_type_index = np.where(DBS78_mutation_types_np_array == my_type)[0][0]
+            my_type_index = np.where(all_mutation_types_np_array == my_type)[0][0]
             type2Strand2ListDict[my_type][strand][0] = np.sum(all_sims_sample_mutation_type_strand_np_array[sim_index, :, my_type_index, strand_index])
         elif my_type in ID83_mutation_types_np_array:
-            my_type_index = np.where(ID83_mutation_types_np_array == my_type)[0][0]
+            my_type_index = np.where(all_mutation_types_np_array == my_type)[0][0]
             type2Strand2ListDict[my_type][strand][0] = np.sum(all_sims_sample_mutation_type_strand_np_array[sim_index, :, my_type_index, strand_index])
         elif my_type in ordered_sbs_signatures_np_array:
             signature_index = np.where(ordered_sbs_signatures_np_array == my_type)[0][0]
@@ -3558,13 +3566,13 @@ def fill_type_2_strand_2_list_dict(my_type,
             indices = np.where(np.char.find(SBS96_mutation_types_np_array, '[' + my_type + ']') != -1)[0]
             type2Strand2ListDict[my_type][strand][1].append(np.sum(all_sims_sample_mutation_type_strand_np_array[sim_index, :, indices, strand_index]))
         elif my_type in SBS96_mutation_types_np_array:
-            my_type_index = np.where(SBS96_mutation_types_np_array == my_type)[0][0]
+            my_type_index = np.where(all_mutation_types_np_array == my_type)[0][0]
             type2Strand2ListDict[my_type][strand][1].append(np.sum(all_sims_sample_mutation_type_strand_np_array[sim_index, :, my_type_index, strand_index]))
         elif my_type in DBS78_mutation_types_np_array:
-            my_type_index = np.where(DBS78_mutation_types_np_array == my_type)[0][0]
+            my_type_index = np.where(all_mutation_types_np_array == my_type)[0][0]
             type2Strand2ListDict[my_type][strand][1].append(np.sum(all_sims_sample_mutation_type_strand_np_array[sim_index, :, my_type_index, strand_index]))
         elif my_type in ID83_mutation_types_np_array:
-            my_type_index = np.where(ID83_mutation_types_np_array == my_type)[0][0]
+            my_type_index = np.where(all_mutation_types_np_array == my_type)[0][0]
             type2Strand2ListDict[my_type][strand][1].append(np.sum(all_sims_sample_mutation_type_strand_np_array[sim_index, :, my_type_index, strand_index]))
         elif my_type in ordered_sbs_signatures_np_array:
             signature_index = np.where(ordered_sbs_signatures_np_array == my_type)[0][0]
@@ -3592,6 +3600,7 @@ def write_type_strand_bias_np_array_as_dataframe(all_sims_sample_mutation_type_s
                                                        outputDir,
                                                        jobname):
 
+
     # all_types_np_array = np.concatenate((SBS6_mutation_types_np_array,
     #                                       SBS96_mutation_types_np_array,
     #                                       DBS78_mutation_types_np_array,
@@ -3599,6 +3608,7 @@ def write_type_strand_bias_np_array_as_dataframe(all_sims_sample_mutation_type_s
     #                                       ordered_sbs_signatures_np_array,
     #                                       ordered_dbs_signatures_np_array,
     #                                       ordered_id_signatures_np_array), axis=None)
+
 
     # Fill type2Strand2ListDict using all_sims_all_types_strand_np_arrays_list
     type2Strand2ListDict = {}
@@ -3618,13 +3628,13 @@ def write_type_strand_bias_np_array_as_dataframe(all_sims_sample_mutation_type_s
                                 indices = np.where(np.char.find(SBS96_mutation_types_np_array, '[' + my_type + ']') != -1)[0]
                                 strand_list[0] = np.sum(all_sims_sample_mutation_type_strand_np_array[sim_index, :,  indices, strand_index])
                             elif my_type in SBS96_mutation_types_np_array:
-                                my_type_index = np.where(SBS96_mutation_types_np_array == my_type)[0][0]
+                                my_type_index = np.where(all_mutation_types_np_array == my_type)[0][0]
                                 strand_list[0] = np.sum(all_sims_sample_mutation_type_strand_np_array[sim_index, :, my_type_index, strand_index])
                             elif my_type in DBS78_mutation_types_np_array:
-                                my_type_index = np.where(DBS78_mutation_types_np_array == my_type)[0][0]
+                                my_type_index = np.where(all_mutation_types_np_array == my_type)[0][0]
                                 strand_list[0] = np.sum(all_sims_sample_mutation_type_strand_np_array[sim_index, :, my_type_index, strand_index])
                             elif my_type in ID83_mutation_types_np_array:
-                                my_type_index = np.where(ID83_mutation_types_np_array == my_type)[0][0]
+                                my_type_index = np.where(all_mutation_types_np_array == my_type)[0][0]
                                 strand_list[0] = np.sum(all_sims_sample_mutation_type_strand_np_array[sim_index, :, my_type_index, strand_index])
                             elif my_type in ordered_sbs_signatures_np_array:
                                 signature_index = np.where(ordered_sbs_signatures_np_array == my_type)[0][0]
@@ -3642,13 +3652,13 @@ def write_type_strand_bias_np_array_as_dataframe(all_sims_sample_mutation_type_s
                                 indices = np.where(np.char.find(SBS96_mutation_types_np_array, '[' + my_type + ']') != -1)[0]
                                 strand_list[1].append(np.sum(all_sims_sample_mutation_type_strand_np_array[sim_index, :,  indices, strand_index]))
                             elif my_type in SBS96_mutation_types_np_array:
-                                my_type_index = np.where(SBS96_mutation_types_np_array == my_type)[0][0]
+                                my_type_index = np.where(all_mutation_types_np_array == my_type)[0][0]
                                 strand_list[1].append(np.sum(all_sims_sample_mutation_type_strand_np_array[sim_index, :,  my_type_index, strand_index]))
                             elif my_type in DBS78_mutation_types_np_array:
-                                my_type_index = np.where(DBS78_mutation_types_np_array == my_type)[0][0]
+                                my_type_index = np.where(all_mutation_types_np_array == my_type)[0][0]
                                 strand_list[1].append(np.sum(all_sims_sample_mutation_type_strand_np_array[sim_index, :,  my_type_index, strand_index]))
                             elif my_type in ID83_mutation_types_np_array:
-                                my_type_index = np.where(ID83_mutation_types_np_array == my_type)[0][0]
+                                my_type_index = np.where(all_mutation_types_np_array == my_type)[0][0]
                                 strand_list[1].append(np.sum(all_sims_sample_mutation_type_strand_np_array[sim_index, :,  my_type_index, strand_index]))
                             elif my_type in ordered_sbs_signatures_np_array:
                                 signature_index = np.where(ordered_sbs_signatures_np_array==my_type)[0][0]

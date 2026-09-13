@@ -71,6 +71,7 @@ from SigProfilerTopography.source.commons.TopographyCommons import SBS6_mutation
 from SigProfilerTopography.source.commons.TopographyCommons import SBS96_mutation_types_np_array
 from SigProfilerTopography.source.commons.TopographyCommons import DBS78_mutation_types_np_array
 from SigProfilerTopography.source.commons.TopographyCommons import ID83_mutation_types_np_array
+from SigProfilerTopography.source.commons.TopographyCommons import all_mutation_types_np_array
 
 from SigProfilerTopography.source.commons.TopographyCommons import USING_APPLY_ASYNC_FOR_EACH_CHROM_AND_SIM
 from SigProfilerTopography.source.commons.TopographyCommons import USING_APPLY_ASYNC_FOR_EACH_CHROM_AND_SIM_SPLIT
@@ -1500,9 +1501,6 @@ def replication_strand_bias_analysis(outputDir,
                                                          verbose,
                                                          log_file)
 
-    all_mutation_types_np_array = np.concatenate((SBS96_mutation_types_np_array,
-                                                  DBS78_mutation_types_np_array,
-                                                  ID83_mutation_types_np_array), axis=None)
 
     all_mutation_types_np_array_size = all_mutation_types_np_array.size
 

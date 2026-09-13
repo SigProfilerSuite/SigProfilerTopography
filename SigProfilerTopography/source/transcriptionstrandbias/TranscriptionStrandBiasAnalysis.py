@@ -75,6 +75,7 @@ from SigProfilerTopography.source.commons.TopographyCommons import SBS6_mutation
 from SigProfilerTopography.source.commons.TopographyCommons import SBS96_mutation_types_np_array
 from SigProfilerTopography.source.commons.TopographyCommons import DBS78_mutation_types_np_array
 from SigProfilerTopography.source.commons.TopographyCommons import ID83_mutation_types_np_array
+from SigProfilerTopography.source.commons.TopographyCommons import all_mutation_types_np_array
 
 # For df_split
 # April 24, 2020
@@ -766,9 +767,6 @@ def transcription_strand_bias_analysis(outputDir,
     print('--- Transcription Strand Asymmetry Analysis starts', file=log_out)
     log_out.close()
 
-    all_mutation_types_np_array = np.concatenate((SBS96_mutation_types_np_array,
-                                                  DBS78_mutation_types_np_array,
-                                                  ID83_mutation_types_np_array), axis=None)
 
     all_mutation_types_np_array_size = all_mutation_types_np_array.size
 
