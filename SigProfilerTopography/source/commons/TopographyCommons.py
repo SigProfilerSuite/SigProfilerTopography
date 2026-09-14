@@ -421,6 +421,8 @@ GRCh37 = 'GRCh37'
 GRCh38 = 'GRCh38'
 CE11 = "c_elegans"
 
+available_genomes = [GRCh37, GRCh38, MM9, MM10, CE11]
+
 FIXED_STEP = 'fixedStep'
 VARIABLE_STEP = 'variableStep'
 
@@ -1938,8 +1940,6 @@ def read_md5_dict_from_file():
 # http://hgdownload.cse.ucsc.edu/goldenpath/mm9/bigZips/mm9.chrom.sizes
 # http://hgdownload.cse.ucsc.edu/goldenpath/mm10/bigZips/mm10.chrom.sizes
 def getChromSizesDict(genome):
-    chromSizesDict = {}
-
     if (genome == GRCh37):
         chromSizesDictPath = os.path.join(current_abs_path, ONE_DIRECTORY_UP, ONE_DIRECTORY_UP, LIB, UCSCGENOME, GRCh37ChromSizesDictFilename)
     elif (genome == GRCh38):
@@ -1950,11 +1950,22 @@ def getChromSizesDict(genome):
         chromSizesDictPath = os.path.join(current_abs_path, ONE_DIRECTORY_UP, ONE_DIRECTORY_UP, LIB, UCSCGENOME, MM10ChromSizesDictFilename)
     elif (genome == CE11):
         chromSizesDictPath = os.path.join(current_abs_path, ONE_DIRECTORY_UP, ONE_DIRECTORY_UP, LIB, UCSCGENOME, CE11ChromSizesDictFilename)
+    else:
+        raise ValueError('SigProfilerTopography: genome: %s is not supported. '
+                         'Supported genomes are %s.' % (genome, available_genomes))
 
-    if (os.path.exists(chromSizesDictPath)):
-        chromSizesDict = readDictionary(chromSizesDictPath)
+    if not os.path.exists(chromSizesDictPath):
+        raise FileNotFoundError('SigProfilerTopography: chromosome sizes file for genome: %s is missing: %s. '
+                                'Please reinstall SigProfilerTopography.' % (genome, chromSizesDictPath))
+
+    chromSizesDict = readDictionary(chromSizesDictPath)
+
+    if not chromSizesDict:
+        raise ValueError('SigProfilerTopography: chromosome sizes file for genome: %s is empty or unreadable: %s. '
+                         'Please reinstall SigProfilerTopography.' % (genome, chromSizesDictPath))
 
     return chromSizesDict
+
 
 def get_signatures(chrBased_mutation_df):
     signatures = []

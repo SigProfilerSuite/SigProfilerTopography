@@ -164,6 +164,7 @@ from SigProfilerTopography.source.commons.TopographyCommons import LIB
 
 from SigProfilerTopography.source.commons.TopographyCommons import read_md5_dict_from_file
 from SigProfilerTopography.source.commons.TopographyCommons import getChromSizesDict
+from SigProfilerTopography.source.commons.TopographyCommons import available_genomes
 from SigProfilerTopography.source.commons.TopographyCommons import getShortNames
 from SigProfilerTopography.source.commons.TopographyCommons import copyMafFiles
 from SigProfilerTopography.source.commons.TopographyCommons import fill_signature_cutoff_properties_df
@@ -1354,6 +1355,14 @@ def runAnalyses(genome, # [String] The reference genome used for the topography 
     print('=============================================')
     print('\n')
 
+    if genome is None:
+        raise ValueError('SigProfilerTopography: parameter genome must be set. '
+                         'Supported genomes are %s.' % (available_genomes))
+
+    if genome not in available_genomes:
+        raise ValueError('SigProfilerTopography: genome: %s is not supported. '
+                         'Supported genomes are %s.' % (genome, available_genomes))
+
     current_abs_path = os.path.dirname(os.path.realpath(__file__))
 
     rp = lambda p: os.path.realpath(p) if p is not None else p
@@ -1521,8 +1530,6 @@ def runAnalyses(genome, # [String] The reference genome used for the topography 
     ################################## Setting starts ###############################
     ################## Set full path library files starts ###########################
     #################################################################################
-    if genome is None:
-        print('There is a situation/problem: Parameter genome:%s must be set for SigProfilerTopography Analysis.' %(genome), file=log_out)
 
     if strand_bias:
         replication_strand_bias = True
