@@ -379,19 +379,13 @@ def prepare_mutations_data_after_matrixeneration_and_extractor_for_topography(ch
 
     return df_columns_contain_ordered_signatures
 
+
 def check_download_replication_time_files(replication_time_signal_file,
                                           replication_time_valley_file,
                                           replication_time_peak_file):
 
     current_abs_path = os.path.dirname(os.path.abspath(__file__))
-
-    # These are currently full path, therefore convert them to filename
-    if replication_time_signal_file:
-        replication_time_signal_file = os.path.basename(replication_time_signal_file)
-    if replication_time_valley_file:
-        replication_time_valley_file = os.path.basename(replication_time_valley_file)
-    if replication_time_peak_file:
-        replication_time_peak_file = os.path.basename(replication_time_peak_file)
+    fname_2_md5_dict = read_md5_dict_from_file()
 
     os.makedirs(os.path.join(current_abs_path, 'lib', 'replication'), exist_ok=True)
     lib_replication_path = os.path.join(current_abs_path, 'lib', 'replication')
@@ -399,61 +393,31 @@ def check_download_replication_time_files(replication_time_signal_file,
     if os.path.isabs(lib_replication_path):
         os.chdir(lib_replication_path)
 
-        if replication_time_signal_file:
-            replication_time_signal_file_path = os.path.join(lib_replication_path, replication_time_signal_file)
-        if replication_time_valley_file:
-            replication_time_valley_file_path = os.path.join(lib_replication_path, replication_time_valley_file)
-        if replication_time_peak_file:
-            replication_time_peak_file_path = os.path.join(lib_replication_path, replication_time_peak_file)
+        for replication_time_file in [replication_time_signal_file, replication_time_valley_file, replication_time_peak_file]:
+            if not replication_time_file:
+                continue
 
-        if replication_time_signal_file:
-            try:
-                # print('Downloading %s_signal_wgEncodeSydhNsome_%sSig.npy under %s' %(chrLong,cell_line,chrbased_npy_array_path))
-                print('Downloading %s under %s' % (replication_time_signal_file, lib_replication_path))
+            # These are currently full path, therefore convert them to filename
+            filename = os.path.basename(replication_time_file)
+            replication_time_file_path = os.path.join(lib_replication_path, filename)
 
-                # -r: Enables recursive downloading.
-                # -l1: Sets the recursion depth to 1, meaning it will only download files in the specified directory.
-                # --no-parent: Prevents wget from ascending to parent directories.
-                # -nd: Tells wget to save all downloaded files in the current directory without creating subdirectories.
-                # -O " + filename + ": Specifies that the downloaded file should be saved with the name contained in the variable filename. This will overwrite any existing file with that name.
-                cmd = "bash -c 'wget -r -l1 --no-parent -nd -O " + replication_time_signal_file + " ftp://alexandrovlab-ftp.ucsd.edu/pub/tools/SigProfilerTopography/lib/replication/" + replication_time_signal_file + "'"
-                os.system(cmd)
-            except:
-                # print("The UCSD ftp site is not responding...pulling from sanger ftp now.")
-                print("The ftp://alexandrovlab-ftp.ucsd.edu site is not responding...")
+            if (not os.path.exists(replication_time_file_path)) or \
+                    ((filename in fname_2_md5_dict) and (md5_read_in_chunks(replication_time_file_path) != fname_2_md5_dict[filename])):
+                print('Does not exists or file is corrupted: %s' % replication_time_file_path)
+                try:
+                    print('Downloading %s under %s' % (filename, lib_replication_path))
 
-        if replication_time_valley_file:
-            try:
-                # print('Downloading %s_signal_wgEncodeSydhNsome_%sSig.npy under %s' %(chrLong,cell_line,chrbased_npy_array_path))
-                print('Downloading %s under %s' % (replication_time_valley_file, lib_replication_path))
-
-                # -r: Enables recursive downloading.
-                # -l1: Sets the recursion depth to 1, meaning it will only download files in the specified directory.
-                # --no-parent: Prevents wget from ascending to parent directories.
-                # -nd: Tells wget to save all downloaded files in the current directory without creating subdirectories.
-                # -O " + filename + ": Specifies that the downloaded file should be saved with the name contained in the variable filename. This will overwrite any existing file with that name.
-                cmd = "bash -c 'wget -r -l1 --no-parent -nd -O " + replication_time_valley_file + " ftp://alexandrovlab-ftp.ucsd.edu/pub/tools/SigProfilerTopography/lib/replication/" + replication_time_valley_file + "'"
-                os.system(cmd)
-            except:
-                # print("The UCSD ftp site is not responding...pulling from sanger ftp now.")
-                print("The ftp://alexandrovlab-ftp.ucsd.edu site is not responding...")
-
-        if replication_time_peak_file:
-            try:
-                # print('Downloading %s_signal_wgEncodeSydhNsome_%sSig.npy under %s' %(chrLong,cell_line,chrbased_npy_array_path))
-                print('Downloading %s under %s' % (replication_time_peak_file, lib_replication_path))
-
-                # -r: Enables recursive downloading.
-                # -l1: Sets the recursion depth to 1, meaning it will only download files in the specified directory.
-                # --no-parent: Prevents wget from ascending to parent directories.
-                # -nd: Tells wget to save all downloaded files in the current directory without creating subdirectories.
-                # -O " + filename + ": Specifies that the downloaded file should be saved with the name contained in the variable filename. This will overwrite any existing file with that name.
-                cmd = "bash -c 'wget -r -l1 --no-parent -nd -O " + replication_time_peak_file + " ftp://alexandrovlab-ftp.ucsd.edu/pub/tools/SigProfilerTopography/lib/replication/" + replication_time_peak_file + "'"
-
-                os.system(cmd)
-            except:
-                # print("The UCSD ftp site is not responding...pulling from sanger ftp now.")
-                print("The ftp://alexandrovlab-ftp.ucsd.edu site is not responding...")
+                    # -r: Enables recursive downloading.
+                    # -l1: Sets the recursion depth to 1, meaning it will only download files in the specified directory.
+                    # --no-parent: Prevents wget from ascending to parent directories.
+                    # -nd: Tells wget to save all downloaded files in the current directory without creating subdirectories.
+                    # -O " + filename + ": Specifies that the downloaded file should be saved with the name contained in the variable filename. This will overwrite any existing file with that name.
+                    cmd = "bash -c 'wget -r -l1 --no-parent -nd -O " + filename + " ftp://alexandrovlab-ftp.ucsd.edu/pub/tools/SigProfilerTopography/lib/replication/" + filename + "'"
+                    os.system(cmd)
+                except:
+                    print("The ftp://alexandrovlab-ftp.ucsd.edu site is not responding...")
+            else:
+                print(f"{replication_time_file_path} already exists.")
 
     else:
         # It has to be an absolute path
@@ -461,6 +425,91 @@ def check_download_replication_time_files(replication_time_signal_file,
 
     # go back
     os.chdir(current_abs_path)
+
+
+# deprecated due to multiple downloads for already existing files
+# def check_download_replication_time_files(replication_time_signal_file,
+#                                           replication_time_valley_file,
+#                                           replication_time_peak_file):
+#
+#     current_abs_path = os.path.dirname(os.path.abspath(__file__))
+#
+#     # These are currently full path, therefore convert them to filename
+#     if replication_time_signal_file:
+#         replication_time_signal_file = os.path.basename(replication_time_signal_file)
+#     if replication_time_valley_file:
+#         replication_time_valley_file = os.path.basename(replication_time_valley_file)
+#     if replication_time_peak_file:
+#         replication_time_peak_file = os.path.basename(replication_time_peak_file)
+#
+#     os.makedirs(os.path.join(current_abs_path, 'lib', 'replication'), exist_ok=True)
+#     lib_replication_path = os.path.join(current_abs_path, 'lib', 'replication')
+#
+#     if os.path.isabs(lib_replication_path):
+#         os.chdir(lib_replication_path)
+#
+#         if replication_time_signal_file:
+#             replication_time_signal_file_path = os.path.join(lib_replication_path, replication_time_signal_file)
+#         if replication_time_valley_file:
+#             replication_time_valley_file_path = os.path.join(lib_replication_path, replication_time_valley_file)
+#         if replication_time_peak_file:
+#             replication_time_peak_file_path = os.path.join(lib_replication_path, replication_time_peak_file)
+#
+#         if replication_time_signal_file:
+#             try:
+#                 # print('Downloading %s_signal_wgEncodeSydhNsome_%sSig.npy under %s' %(chrLong,cell_line,chrbased_npy_array_path))
+#                 print('Downloading %s under %s' % (replication_time_signal_file, lib_replication_path))
+#
+#                 # -r: Enables recursive downloading.
+#                 # -l1: Sets the recursion depth to 1, meaning it will only download files in the specified directory.
+#                 # --no-parent: Prevents wget from ascending to parent directories.
+#                 # -nd: Tells wget to save all downloaded files in the current directory without creating subdirectories.
+#                 # -O " + filename + ": Specifies that the downloaded file should be saved with the name contained in the variable filename. This will overwrite any existing file with that name.
+#                 cmd = "bash -c 'wget -r -l1 --no-parent -nd -O " + replication_time_signal_file + " ftp://alexandrovlab-ftp.ucsd.edu/pub/tools/SigProfilerTopography/lib/replication/" + replication_time_signal_file + "'"
+#                 os.system(cmd)
+#             except:
+#                 # print("The UCSD ftp site is not responding...pulling from sanger ftp now.")
+#                 print("The ftp://alexandrovlab-ftp.ucsd.edu site is not responding...")
+#
+#         if replication_time_valley_file:
+#             try:
+#                 # print('Downloading %s_signal_wgEncodeSydhNsome_%sSig.npy under %s' %(chrLong,cell_line,chrbased_npy_array_path))
+#                 print('Downloading %s under %s' % (replication_time_valley_file, lib_replication_path))
+#
+#                 # -r: Enables recursive downloading.
+#                 # -l1: Sets the recursion depth to 1, meaning it will only download files in the specified directory.
+#                 # --no-parent: Prevents wget from ascending to parent directories.
+#                 # -nd: Tells wget to save all downloaded files in the current directory without creating subdirectories.
+#                 # -O " + filename + ": Specifies that the downloaded file should be saved with the name contained in the variable filename. This will overwrite any existing file with that name.
+#                 cmd = "bash -c 'wget -r -l1 --no-parent -nd -O " + replication_time_valley_file + " ftp://alexandrovlab-ftp.ucsd.edu/pub/tools/SigProfilerTopography/lib/replication/" + replication_time_valley_file + "'"
+#                 os.system(cmd)
+#             except:
+#                 # print("The UCSD ftp site is not responding...pulling from sanger ftp now.")
+#                 print("The ftp://alexandrovlab-ftp.ucsd.edu site is not responding...")
+#
+#         if replication_time_peak_file:
+#             try:
+#                 # print('Downloading %s_signal_wgEncodeSydhNsome_%sSig.npy under %s' %(chrLong,cell_line,chrbased_npy_array_path))
+#                 print('Downloading %s under %s' % (replication_time_peak_file, lib_replication_path))
+#
+#                 # -r: Enables recursive downloading.
+#                 # -l1: Sets the recursion depth to 1, meaning it will only download files in the specified directory.
+#                 # --no-parent: Prevents wget from ascending to parent directories.
+#                 # -nd: Tells wget to save all downloaded files in the current directory without creating subdirectories.
+#                 # -O " + filename + ": Specifies that the downloaded file should be saved with the name contained in the variable filename. This will overwrite any existing file with that name.
+#                 cmd = "bash -c 'wget -r -l1 --no-parent -nd -O " + replication_time_peak_file + " ftp://alexandrovlab-ftp.ucsd.edu/pub/tools/SigProfilerTopography/lib/replication/" + replication_time_peak_file + "'"
+#
+#                 os.system(cmd)
+#             except:
+#                 # print("The UCSD ftp site is not responding...pulling from sanger ftp now.")
+#                 print("The ftp://alexandrovlab-ftp.ucsd.edu site is not responding...")
+#
+#     else:
+#         # It has to be an absolute path
+#         print('%s is not an absolute path.' %lib_replication_path)
+#
+#     # go back
+#     os.chdir(current_abs_path)
 
 
 def check_download_sample_probability_files():
