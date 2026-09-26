@@ -741,6 +741,9 @@ def install_nucleosome(genome, biosample = None):
         if genome == GRCh38 and biosample == GM12878:
             nucleosome_file = GM12878_GRCh38_NUCLEOSOME_OCCUPANCY_FILE
 
+        if genome == MM10 and biosample == MEF:
+            nucleosome_file = MM10_MEF_NUCLEOSOME_FILE
+
     check_download_chrbased_npy_nuclesome_files(nucleosome_file, chromNamesList, fname_2_md5_dict)
 
 
