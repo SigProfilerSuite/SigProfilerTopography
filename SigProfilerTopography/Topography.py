@@ -676,35 +676,31 @@ def check_download_chrbased_npy_nuclesome_files(nucleosome_file, chromNamesList,
         nucleosome_filename_wo_extension = os.path.splitext(os.path.basename(nucleosome_file))[0]
 
         for chrLong in chromNamesList:
-            # GM12878 and K562 comes from woman samples therefore there is no chrY
-            if chrLong != 'chrY':
-                # filename = '%s_signal_wgEncodeSydhNsome%sSig.npy' %(chrLong,cell_line)
-                filename = '%s_signal_%s.npy' % (chrLong, nucleosome_filename_wo_extension)
+            # chrY is excluded upstream in install_nucleosome() for biosamples without chrY data (e.g. K562 and GM12878 on GRCh37)
+            filename = '%s_signal_%s.npy' % (chrLong, nucleosome_filename_wo_extension)
 
-                chrbased_npy_array_path = os.path.join(chrombased_npy_path, filename)
+            chrbased_npy_array_path = os.path.join(chrombased_npy_path, filename)
 
-                if (not os.path.exists(chrbased_npy_array_path)) or \
-                        (os.path.exists(chrbased_npy_array_path) and (filename in fname_2_md5_dict) and md5_read_in_chunks(chrbased_npy_array_path) != fname_2_md5_dict[filename]):
+            if (not os.path.exists(chrbased_npy_array_path)) or \
+                    (os.path.exists(chrbased_npy_array_path) and (filename in fname_2_md5_dict) and md5_read_in_chunks(chrbased_npy_array_path) != fname_2_md5_dict[filename]):
 
-                    print('Does not exists or file is corrupted: %s' %chrbased_npy_array_path)
+                print('Does not exists or file is corrupted: %s' %chrbased_npy_array_path)
 
-                    try:
-                        # print('Downloading %s_signal_wgEncodeSydhNsome_%sSig.npy under %s' %(chrLong,cell_line,chrbased_npy_array_path))
-                        print('Downloading %s_signal_%s.npy under %s' % (
-                        chrLong, nucleosome_filename_wo_extension, chrbased_npy_array_path))
+                try:
+                    print('Downloading %s_signal_%s.npy under %s' % (
+                    chrLong, nucleosome_filename_wo_extension, chrbased_npy_array_path))
 
-                        # -r: Enables recursive downloading.
-                        # -l1: Sets the recursion depth to 1, meaning it will only download files in the specified directory.
-                        # --no-parent: Prevents wget from ascending to parent directories.
-                        # -nd: Tells wget to save all downloaded files in the current directory without creating subdirectories.
-                        # -O " + filename + ": Specifies that the downloaded file should be saved with the name contained in the variable filename. This will overwrite any existing file with that name.
-                        cmd = "bash -c 'wget -r -l1 --no-parent -nd -O " + filename + " ftp://alexandrovlab-ftp.ucsd.edu/pub/tools/SigProfilerTopography/lib/nucleosome/chrbased/" + filename + "'"
-                        os.system(cmd)
-                    except:
-                        # print("The UCSD ftp site is not responding...pulling from sanger ftp now.")
-                        print("The UCSD ftp site is not responding...")
-                else:
-                    print(f"{chrbased_npy_array_path} already exists.")
+                    # -r: Enables recursive downloading.
+                    # -l1: Sets the recursion depth to 1, meaning it will only download files in the specified directory.
+                    # --no-parent: Prevents wget from ascending to parent directories.
+                    # -nd: Tells wget to save all downloaded files in the current directory without creating subdirectories.
+                    # -O " + filename + ": Specifies that the downloaded file should be saved with the name contained in the variable filename. This will overwrite any existing file with that name.
+                    cmd = "bash -c 'wget -r -l1 --no-parent -nd -O " + filename + " ftp://alexandrovlab-ftp.ucsd.edu/pub/tools/SigProfilerTopography/lib/nucleosome/chrbased/" + filename + "'"
+                    os.system(cmd)
+                except:
+                    print("The UCSD ftp site is not responding...")
+            else:
+                print(f"{chrbased_npy_array_path} already exists.")
 
     else:
         # It has to be an absolute path
@@ -719,11 +715,12 @@ def install_nucleosome(genome, biosample = None):
     chromNamesList = list(chromSizesDict.keys())
     fname_2_md5_dict = read_md5_dict_from_file()
 
+    nucleosome_file = None
+
     # default files
     if biosample is None:
         if genome == MM10:
             nucleosome_file = MM10_mmNuc0020101_GSM1004653_ESC_NUCLEOSOME_FILE
-            chromNamesList.remove('chrY')
 
         elif genome == GRCh37:
             nucleosome_file = K562_NUCLEOSOME_OCCUPANCY_FILE
@@ -731,20 +728,33 @@ def install_nucleosome(genome, biosample = None):
 
         elif genome == GRCh38:
             nucleosome_file = K562_GRCh38_NUCLEOSOME_OCCUPANCY_FILE
-            chromNamesList.remove('chrY')
 
     elif biosample is not None:
-        if genome == GRCh37 and biosample == GM12878:
+        if genome == GRCh37 and biosample == K562:
+            nucleosome_file = K562_NUCLEOSOME_OCCUPANCY_FILE
+            chromNamesList.remove('chrY')
+
+        elif genome == GRCh37 and biosample == GM12878:
             nucleosome_file = GM12878_NUCLEOSOME_OCCUPANCY_FILE
             chromNamesList.remove('chrY')
 
-        if genome == GRCh38 and biosample == GM12878:
-            nucleosome_file = GM12878_GRCh38_NUCLEOSOME_OCCUPANCY_FILE
+        elif genome == GRCh38 and biosample == K562:
+            nucleosome_file = K562_GRCh38_NUCLEOSOME_OCCUPANCY_FILE
 
-        if genome == MM10 and biosample == MEF:
+        elif genome == GRCh38 and biosample == GM12878:
+            nucleosome_file = GM12878_GRCh38_NUCLEOSOME_OCCUPANCY_FILE
+            chromNamesList.remove('chrY')
+
+        elif genome == MM10 and biosample == ESC:
+            nucleosome_file = MM10_mmNuc0020101_GSM1004653_ESC_NUCLEOSOME_FILE
+
+        elif genome == MM10 and biosample == MEF:
             nucleosome_file = MM10_MEF_NUCLEOSOME_FILE
 
-    check_download_chrbased_npy_nuclesome_files(nucleosome_file, chromNamesList, fname_2_md5_dict)
+    if nucleosome_file:
+        check_download_chrbased_npy_nuclesome_files(nucleosome_file, chromNamesList, fname_2_md5_dict)
+    else:
+        raise ValueError(f"No nucleosome data available for genome={genome}, biosample={biosample}.")
 
 
 def install_atac_seq(genome, biosample=None):
