@@ -2411,9 +2411,13 @@ def runAnalyses(genome, # [String] The reference genome used for the topography 
                 # Simulator creates maf files under inputDir/output/simulations/jobname_simulations_GRCh37_DBS
                 if bed_file is None:
                     dirName = '%s_simulations_%s_%s' %(jobname, genome, mutation_type_context)
+                    if exome:
+                        dirName += '_exome'
                 else:
                     # SigProfilerSimulator is run with a bed_file
                     dirName = '%s_simulations_%s_%s_BED' % (jobname, genome, mutation_type_context)
+                    if exome:
+                        dirName += '_exome'
 
                 copyFromDir = os.path.join(inputDir,'output','simulations',dirName) # One maf file for each simulation and for each chromosome maf under this directory
                 copyToMainDir= os.path.join(inputDir,'output','simulations') # One maf file for each simulation (all chromosomes are combined) under sim_num and mutation type directory
